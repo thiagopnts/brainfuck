@@ -89,8 +89,8 @@ impl Brainfuck {
         print!("{}", (self.memory[self.pointer as usize].to_ascii_lowercase()) as char);
     }
 
-    fn input(&self) {
-        let c = stdin().read_char().ok().expect("Error reading user input");
+    fn input(&mut self) {
+        self.memory[self.pointer as usize] = stdin().read_char().ok().expect("Error reading user input") as u8;
     }
 
     fn jump(&mut self) {
