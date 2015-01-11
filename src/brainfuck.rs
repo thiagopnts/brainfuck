@@ -1,4 +1,5 @@
-use std::io::{stdin, Reader};
+use std::io::{stdin};
+use std::io::stdio::{StdinReader};
 use std::ascii::AsciiExt;
 
 #[deriving(PartialEq)]
@@ -36,34 +37,64 @@ impl ToOp for u8 {
 
 pub struct Brainfuck {
     memory: Vec<u8>,
-    content: Box<Reader + 'static>,
+    content: Box<StdinReader>,
     pointer: i64,
 }
 
 impl Brainfuck {
-    pub fn new(content: Box<Reader + 'static>) -> Brainfuck {
+    pub fn new(content: Box<StdinReader>) -> Brainfuck {
         let mut v = vec!();
         for i in range(0, 10000) {
-            v.push(64);
+            v.push(0u8);
         }
         Brainfuck { memory: v, content: content, pointer: 0 }
     }
     pub fn evaluate(&mut self) {
-        'eval: loop {
-            match self.content.read_byte() {
-                Ok(byte) => match byte.to_op() {
+        let mut program:Vec<u8> = self.content.read_until('\n' as u8).ok().expect("Couldn't load the entire program to memory");
+        let mut program_counter = 0;
+        while program_counter < program.len() {
+            match program[program_counter].clone().to_op() {
                     Op::Left      => self.left(),
                     Op::Right     => self.right(),
                     Op::Increment => self.increment(),
                     Op::Decrement => self.decrement(),
                     Op::Output    => self.output(),
                     Op::Input     => self.input(),
-                    Op::Jump      => self.jump(),
-                    Op::JumpBack  => self.jump_back(),
-                    Op::Unknown => self.unknown(byte),
-                },
-                Err(err) => break 'eval
+                    Op::Jump      => {
+                        let mut bal: i32 = 1;
+                        if self.memory[self.pointer as usize] == 0u8 {
+                            loop {
+                                program_counter += 1;
+                                let c = program[program_counter as usize] as char;
+                                if c == '[' {
+                                    bal += 1;
+                                } else if c == ']' {
+                                    bal -= 1;
+                                }
+                                if bal == 0 {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    Op::JumpBack  => {
+                        let mut bal: i32 = 0;
+                        loop {
+                            let c = program[program_counter as usize] as char;
+                            if c == '[' {
+                                bal += 1;
+                            } else if c == ']' {
+                                bal -= 1;
+                            }
+                            program_counter -= 1;
+                            if bal == 0 {
+                                break;
+                            }
+                        }
+                    }
+                    Op::Unknown => self.unknown(program[program_counter]),
             }
+            program_counter += 1;
         }
         println!("");
         println!("done evaluating");
@@ -86,50 +117,21 @@ impl Brainfuck {
     }
 
     fn output(&self) {
-        print!("{}", (self.memory[self.pointer as usize].to_ascii_lowercase()) as char);
+        print!("{}", (self.memory[self.pointer as usize]) as char);
     }
 
     fn input(&mut self) {
         self.memory[self.pointer as usize] = stdin().read_char().ok().expect("Error reading user input") as u8;
     }
 
-    fn jump(&mut self) {
-        let mut bal = 1;
-        if self.memory[self.pointer as usize] as char == '\0' {
-            'foo: loop {
-                self.pointer += 1;
-                let c = self.memory[self.pointer as usize] as char;
-                if c == '[' {
-                    bal += 1;
-                } else if c == ']' {
-                    bal -= 1;
-                }
-                if bal == 0 {
-                    break 'foo
-                }
-            }
-        }
+    fn jump(&mut self, reader: Box<Reader>) {
     }
 
     fn jump_back(&mut self) {
-        let mut bal = 0;
-        if self.memory[self.pointer as usize] as char == '\0' {
-            'foo: loop {
-                let c = self.memory[self.pointer as usize] as char;
-                if c == '[' {
-                    bal += 1;
-                } else if c == ']' {
-                    bal -= 1;
-                }
-                self.pointer -= 1;
-                if bal == 0 {
-                    break 'foo
-                }
-            }
-        }
+
     }
 
     fn unknown(&self, byte: u8) {
-        println!("\nUnknown OP: {}", byte as char);
+        println!("\nUnknown OP: {}", byte);
     }
 }
