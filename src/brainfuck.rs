@@ -130,6 +130,6 @@ impl Brainfuck {
     }
 
     fn unknown(&self, byte: u8) {
-        println!("\nunknown op {}", byte as char);
+        println!("\nUnknown OP: {}", byte as char);
     }
 }
