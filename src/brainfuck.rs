@@ -60,7 +60,7 @@ impl Brainfuck {
                     Op::Input     => self.input(),
                     Op::Jump      => self.jump(),
                     Op::JumpBack  => self.jump_back(),
-                    Op::Unknown => self.unknown(),
+                    Op::Unknown => self.unknown(byte),
                 },
                 Err(err) => break 'eval
             }
@@ -129,7 +129,7 @@ impl Brainfuck {
         }
     }
 
-    fn unknown(&self) {
-        println!("\nunknown op");
+    fn unknown(&self, byte: u8) {
+        println!("\nunknown op {}", byte as char);
     }
 }
