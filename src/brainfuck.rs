@@ -1,8 +1,6 @@
-use std::io::{stdin};
-use std::io::stdio::{StdinReader};
-use std::ascii::AsciiExt;
+use std::io::stdin;
+use std::io::stdio::StdinReader;
 
-#[deriving(PartialEq)]
 enum Op {
     Left      = 60,
     Right     = 62,
@@ -43,11 +41,11 @@ pub struct Brainfuck {
 
 impl Brainfuck {
     pub fn new(content: Box<StdinReader>) -> Brainfuck {
-        let mut v = (0 .. 30000).map(|x| 0).collect();
+        let v = (0 .. 30000).map(|_| 0).collect();
         Brainfuck { memory: v, content: content, pointer: 0 }
     }
     pub fn evaluate(&mut self) {
-        let mut program:Vec<u8> = self.content.read_until('\n' as u8).ok().expect("Couldn't load the entire program to memory");
+        let program:Vec<u8> = self.content.read_until('\n' as u8).ok().expect("Couldn't load the entire program to memory");
         let mut program_counter = 0;
         while program_counter < program.len() {
             match program[program_counter].clone().to_op() {
