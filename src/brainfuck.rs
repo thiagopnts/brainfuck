@@ -43,7 +43,7 @@ pub struct Brainfuck {
 
 impl Brainfuck {
     pub fn new(content: Box<StdinReader>) -> Brainfuck {
-        let mut v = (0 .. 1000).map(|x| 0).collect();
+        let mut v = (0 .. 30000).map(|x| 0).collect();
         Brainfuck { memory: v, content: content, pointer: 0 }
     }
     pub fn evaluate(&mut self) {
