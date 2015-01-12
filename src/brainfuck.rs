@@ -73,7 +73,7 @@ impl Brainfuck {
                                 }
                             }
                         }
-                    }
+                    },
                     Op::JumpBack  => {
                         let mut bal: i32 = 0;
                         loop {
@@ -93,8 +93,6 @@ impl Brainfuck {
             }
             program_counter += 1;
         }
-        println!("");
-        println!("done evaluating");
     }
 
     fn left(&mut self) {
@@ -129,6 +127,8 @@ impl Brainfuck {
     }
 
     fn unknown(&self, byte: u8) {
-        println!("\nUnknown OP: {}", byte);
+        if byte != 10 {
+            println!("\nUnknown OP: {}", byte);
+        }
     }
 }
