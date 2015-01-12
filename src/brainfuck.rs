@@ -35,62 +35,34 @@ impl ToOp for u8 {
 
 pub struct Brainfuck {
     memory: Vec<u8>,
-    content: Box<StdinReader>,
+    program: Vec<u8>,
     pointer: i64,
 }
 
 impl Brainfuck {
     pub fn new(content: Box<StdinReader>) -> Brainfuck {
         let v = (0 .. 30000).map(|_| 0).collect();
-        Brainfuck { memory: v, content: content, pointer: 0 }
+        let mut content = content;
+        let program: Vec<u8> = content.read_until('\n' as u8).ok().expect("Couldn't load the entire program to memory");
+        Brainfuck { memory: v, program: program, pointer: 0 }
     }
     pub fn evaluate(&mut self) {
-        let program:Vec<u8> = self.content.read_until('\n' as u8).ok().expect("Couldn't load the entire program to memory");
         let mut program_counter = 0;
-        while program_counter < program.len() {
-            match program[program_counter].clone().to_op() {
+        while program_counter < self.program.len() {
+            match self.program[program_counter].to_op() {
                     Op::Left      => self.left(),
                     Op::Right     => self.right(),
                     Op::Increment => self.increment(),
                     Op::Decrement => self.decrement(),
                     Op::Output    => self.output(),
                     Op::Input     => self.input(),
-                    Op::Jump      => {
-                        let mut bal: i32 = 1;
-                        if self.memory[self.pointer as usize] == 0u8 {
-                            loop {
-                                program_counter += 1;
-                                let c = program[program_counter as usize] as char;
-                                if c == '[' {
-                                    bal += 1;
-                                } else if c == ']' {
-                                    bal -= 1;
-                                }
-                                if bal == 0 {
-                                    break;
-                                }
-                            }
-                        }
-                    },
-                    Op::JumpBack  => {
-                        let mut bal: i32 = 0;
-                        loop {
-                            let c = program[program_counter as usize] as char;
-                            if c == '[' {
-                                bal += 1;
-                            } else if c == ']' {
-                                bal -= 1;
-                            }
-                            program_counter -= 1;
-                            if bal == 0 {
-                                break;
-                            }
-                        }
-                    }
-                    Op::Unknown => self.unknown(program[program_counter]),
+                    Op::Jump      => self.jump(&mut program_counter),
+                    Op::JumpBack  => self.jump_back(&mut program_counter),
+                    Op::Unknown => self.unknown(self.program[program_counter]),
             }
             program_counter += 1;
         }
+        println!("");
     }
 
     fn left(&mut self) {
@@ -117,11 +89,38 @@ impl Brainfuck {
         self.memory[self.pointer as usize] = stdin().read_char().ok().expect("Error reading user input") as u8;
     }
 
-    fn jump(&mut self, reader: Box<Reader>) {
+    fn jump(&mut self, program_counter: &mut usize) {
+        let mut bal: i32 = 1;
+        if self.memory[self.pointer as usize] == 0u8 {
+            loop {
+                *program_counter += 1;
+                let c = self.program[*program_counter] as char;
+                if c == '[' {
+                    bal += 1;
+                } else if c == ']' {
+                    bal -= 1;
+                }
+                if bal == 0 {
+                    break;
+                }
+            }
+        }
     }
 
-    fn jump_back(&mut self) {
-
+    fn jump_back(&mut self, program_counter: &mut usize) {
+        let mut bal: i32 = 0;
+        loop {
+            let c = self.program[*program_counter] as char;
+            if c == '[' {
+                bal += 1;
+            } else if c == ']' {
+                bal -= 1;
+            }
+            *program_counter -= 1;
+            if bal == 0 {
+                break;
+            }
+        }
     }
 
     fn unknown(&self, byte: u8) {
