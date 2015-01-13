@@ -90,7 +90,7 @@ impl Brainfuck {
     }
 
     fn jump(&mut self, program_counter: &mut usize) {
-        let mut bal: i32 = 1;
+        let mut bal = 1i32;
         if self.memory[self.pointer as usize] == 0u8 {
             loop {
                 *program_counter += 1;
@@ -108,7 +108,7 @@ impl Brainfuck {
     }
 
     fn jump_back(&mut self, program_counter: &mut usize) {
-        let mut bal: i32 = 0;
+        let mut bal = 0i32;
         loop {
             let c = self.program[*program_counter] as char;
             if c == '[' {
