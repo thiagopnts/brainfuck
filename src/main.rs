@@ -7,7 +7,7 @@ mod repl;
 fn main() {
     let arguments = os::args();
     match arguments.get(1) {
-        Some(ref name) => println!("file: {}", name),
+        Some(ref name) => repl::Repl::evaluate(File::new(&Path::new(name))),
         None => repl::Repl::run(),
     }
 }
