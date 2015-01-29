@@ -1,6 +1,6 @@
 #![allow(unstable)]
 
-use std::io;
+use std::old_io;
 
 #[path = "brainfuck.rs"]
 mod interpreter;
@@ -12,7 +12,7 @@ impl Repl {
         println!("\n\n\nBrainfuck REPL version 0.0.1");
         loop {
             print!("> ");
-            let reader = io::stdin();
+            let reader = old_io::stdin();
             let mut brainfuck = interpreter::Brainfuck::new(Box::new(reader));
             brainfuck.evaluate();
         }

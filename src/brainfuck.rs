@@ -1,5 +1,5 @@
-use std::io::stdin;
-use std::io::stdio::StdinReader;
+use std::old_io::stdin;
+use std::old_io::stdio::StdinReader;
 
 enum Op {
     Left      = 60,
