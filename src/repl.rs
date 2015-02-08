@@ -1,5 +1,3 @@
-#![allow(unstable)]
-
 use std::old_io;
 
 #[path = "brainfuck.rs"]

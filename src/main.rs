@@ -1,13 +1,14 @@
-#![allow(unstable)]
+#![feature(io, env)]
 
-use std::os;
+use std::env;
 
 mod repl;
 
 fn main() {
-    let arguments = os::args();
-    match arguments.get(1) {
-        Some(ref name) => println!("file: {}", name),
+    let mut arguments = env::args();
+    arguments.next();
+    match arguments.next() {
+        Some(name) => println!("file: {}", name.into_string().unwrap()),
         None => repl::Repl::run(),
     }
 }
